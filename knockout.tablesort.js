@@ -2,22 +2,57 @@
 
 ( function ( ko ) {
 
+    // Keep an internal table counter and an array of
+    // options for each table.
+    var tableOptionsIndex = 0,
+        tableOptions = [];
+
+    // Helper function to recursively find the closest parent
+    // element that matches the target node name, including the
+    // element itself.
+    function closestParentOrSelf( element, target ) {
+        if ( element.nodeName.toLowerCase() === target.toLowerCase() )
+            return element;
+
+        element = element.parentElement;
+        if ( element === 'undefined' || !element )
+            return null;
+
+        if ( element.nodeName.toLowerCase() === target.toLowerCase() )
+            return element;
+
+        return closestParentOrSelf( element, target );
+    };
+    
+    // Handler for mouse clicks on headers.
+    function headerClickHandler( context, mouseEvent ) {
+        var th = closestParentOrSelf( mouseEvent.target, 'th' );
+        var tr = closestParentOrSelf( th, 'tr' );
+    };
+    
+    // Export the tablesort namespace.
+    ko.tablesort = {
+        headerClickHandler: headerClickHandler
+    };
+
     // Extender that takes an observableArray of data,
     // and an observable containing the sort options.
-    ko.extenders.tablesort = function ( target, options ) {
+    ko.extenders.tablesort = function ( target ) {
+
+        // Get the next table options index and increment it,
+        // then create an observable to hold the table options.
+        var optionsIndex = tableOptionsIndex++;
+        tableOptions[ optionsIndex ] = ko.observable( null );
 
         // Throw an error if "target" can't be an observable array.
         if ( Object.prototype.toString.call( target() ) !== '[object Array]' )
             throw new TypeError( 'Parameter "target" is not an observable array.' );
-        // Throw an error if "options" can't be an observable.
-        if ( typeof options !== 'function' )
-            throw new TypeError( 'Parameter "options" is not an observable.' );
 
         return ko.computed( {
 
             // Sorting happens here in the getter.
             read: function () {
-                var optionsObject = options();
+                var optionsObject = tableOptions[ optionsIndex ]();
 
                 // If the options object is null, there's no sorting.
                 if ( !optionsObject )
