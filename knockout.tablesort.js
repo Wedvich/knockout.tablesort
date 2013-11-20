@@ -28,11 +28,14 @@
     // Header click handler function.
     function clickHandler( targetElement, tableElement, options ) {
         
-        // Get the clicked th element and store its class.
+        // Get the header element and check if it should be sortable.
         var thisHeader = closestParentOrSelf( targetElement, 'th' );
-        var thisHeaderRow = closestParentOrSelf( thisHeader, 'tr' );
+        if ( !thisHeader.getAttribute( 'data-sort-property' ) )
+            return;
+
         
         // Remove sorting classes.
+        var thisHeaderRow = closestParentOrSelf( thisHeader, 'tr' );
         for ( var i = 0; i < thisHeaderRow.children.length; ++i ) {
             thisHeaderRow.children[ i ].className = thisHeaderRow.children[ i ].className.replace( /sorting-(asc|desc)/g, '' );
         }
