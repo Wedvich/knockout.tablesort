@@ -1,13 +1,13 @@
 ## Knockout.Tablesort
 
-This is a Knockout extender with utilities meant for sorting tables that are
-bound to Knockout observable arrays. It works by extending an observable array
-with a computed observable that does the sorting, and an observable object
+This is a [Knockout.js](http://knockoutjs.com/ "Knockout") extender with utilities for
+sorting tables that are bound to Knockout observable arrays. It works by extending an
+observable array with a computed observable that does the sorting, and an observable object
 containing the current sort options. It then binds a click handler to the header row.
 
 The setup needed to make this work is:
   - A reference to the table element that's bound to the observable array when
-    the extender is instantiated
+    the extender is applied.
   - A "data-sort-property" attribute on the <th> tags for sortable columns, with the
     path to the property that will be used for sorting. Columns without this property
     will not be sorted.
