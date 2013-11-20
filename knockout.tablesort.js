@@ -1,11 +1,12 @@
 // Knockout.Tablesort
 
 ( function ( ko ) {
-
+    
     // Keep an internal table counter and an array of
-    // options for each table.
+    // options for each table, plus the table elements in DOM.
     var tableOptionsIndex = 0,
-        tableOptions = [];
+        tableOptions = [],
+        tableElements = [];
 
     // Helper function to recursively find the closest parent
     // element that matches the target node name, including the
@@ -23,46 +24,87 @@
 
         return closestParentOrSelf( element, target );
     };
-    
-    // Handler for mouse clicks on headers.
-    function headerClickHandler( context, mouseEvent ) {
-        var th = closestParentOrSelf( mouseEvent.target, 'th' );
-        var tr = closestParentOrSelf( th, 'tr' );
-    };
-    
-    // Export the tablesort namespace.
-    ko.tablesort = {
-        headerClickHandler: headerClickHandler
-    };
+
+    // Header click handler function.
+    function clickHandler( targetElement, tableElement, options ) {
+        
+        // Get the clicked th element and store its class.
+        var thisHeader = closestParentOrSelf( targetElement, 'th' );
+        var thisHeaderRow = closestParentOrSelf( thisHeader, 'tr' );
+        
+        // Remove sorting classes.
+        for ( var i = 0; i < thisHeaderRow.children.length; ++i ) {
+            thisHeaderRow.children[ i ].className = thisHeaderRow.children[ i ].className.replace( /sorting-(asc|desc)/g, '' );
+        }
+
+        // Get the options object and set it to one of three states,
+        // depending on the current sort column/cell:
+        // - null, or different column: set it to ascending on the current column
+        // - ascending: set it to descending
+        // - descending: set it to null
+        var currentOptions = options();
+        if ( !currentOptions || currentOptions.columnIndex !== thisHeader.cellIndex ) {
+            options( {
+                direction: 'asc',
+                columnIndex: thisHeader.cellIndex,
+                propertyName: thisHeader.getAttribute( 'data-sort-property' )
+            } );
+        } else if ( currentOptions.direction === 'asc' ) {
+            currentOptions.direction = 'desc';
+            options.valueHasMutated();
+        } else {
+            options( null );
+        }
+        
+        // Get the updated options and add CSS class to the related
+        // header element if sorting is active.
+        var newOptions = options();
+        if ( !!newOptions ) {
+            var classes = thisHeader.className.split( ' ' );
+            classes.push( 'sorting-' + newOptions.direction );
+            thisHeader.className = classes.join( ' ' ).trim();
+        }
+    }
 
     // Extender that takes an observableArray of data,
     // and an observable containing the sort options.
-    ko.extenders.tablesort = function ( target ) {
+    ko.extenders.tablesort = function ( target, tableElement ) {
+
+        // Throw an error if "tableElement" isn't set.
+        if ( typeof tableElement === 'undefined' || !tableElement )
+            throw new TypeError( 'Parameter "tableElement" must be set.' );
 
         // Get the next table options index and increment it,
         // then create an observable to hold the table options.
         var optionsIndex = tableOptionsIndex++;
         tableOptions[ optionsIndex ] = ko.observable( null );
+        tableElements[ optionsIndex ] = tableElement;
+        
+        // Capture a reference to this options object.
+        var options = tableOptions[ optionsIndex ];
 
-        // Throw an error if "target" can't be an observable array.
-        if ( Object.prototype.toString.call( target() ) !== '[object Array]' )
-            throw new TypeError( 'Parameter "target" is not an observable array.' );
+        // Get the first header row.
+        var tableHeader = tableElement.getElementsByTagName( 'thead' )[0];
+        if ( !tableHeader )
+            throw new Error( 'Malformed table markup: could not find any "thead" element.' );
+        var tableHeaderRow = tableHeader.getElementsByTagName( 'tr' )[0];
+        if ( !tableHeaderRow )
+            throw new Error( 'Malformed table markup: could not find any "tr" element in table header.' );
+
+        // Hook up the click event handler.
+        tableHeaderRow.onclick = function ( mouseEvent ) {
+            clickHandler( mouseEvent.target, tableElement, options );
+        };
 
         return ko.computed( {
 
             // Sorting happens here in the getter.
             read: function () {
-                var optionsObject = tableOptions[ optionsIndex ]();
+                var optionsObject = options();
 
                 // If the options object is null, there's no sorting.
                 if ( !optionsObject )
                     return target();
-
-                // Validate the options object.
-                if ( !optionsObject.hasOwnProperty( 'direction' )
-                    || !optionsObject.hasOwnProperty( 'columnIndex' )
-                    || !optionsObject.hasOwnProperty( 'propertyName' ) )
-                    throw new TypeError( 'The provided options object lacks one of the required properties: direction, columnIndex, propertyName' );
 
                 var unsortedArray = target();
 
