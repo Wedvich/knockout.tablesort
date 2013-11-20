@@ -48,8 +48,8 @@ HTML:
     <table id="company-table">
         <thead>
             <tr>
-                <th><span>Company</span></th>
-                <th><span>Signature color</span></th>
+                <th data-sort-property="company"><span>Company</span></th>
+                <th data-sort-property="signatureColor"><span>Signature color</span></th>
             </tr>
         </thead>
         <tbody data-bind="foreach: companies">
