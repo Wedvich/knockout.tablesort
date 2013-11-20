@@ -22,12 +22,14 @@ HTML:
             <tr>
                 <th data-sort-property="company"><span>Company</span></th>
                 <th data-sort-property="signatureColor"><span>Signature color</span></th>
+                <th><span>Leasing provider</span></th>
             </tr>
         </thead>
         <tbody data-bind="foreach: companies">
             <tr>
                 <td data-bind="text: company"></td>
                 <td data-bind="text: signatureColor"></td>
+                <td data-bind="text: leasingProvider"></td>
             </tr>
         </tbody>
     </table>
