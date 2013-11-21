@@ -1,23 +1,21 @@
-## Knockout.Tablesort
+##Knockout.Tablesort
 
-This is a [Knockout.js](http://knockoutjs.com/ "Knockout") extender with utilities for
-sorting tables that are bound to Knockout observable arrays. It works by extending an
-observable array with a computed observable that does the sorting, and an observable object
-containing the current sort options. It then binds a click handler to the header row.
+This is a custom [Knockout.js](http://knockoutjs.com/ "Knockout") foreach binding handler
+that allows tables using this handler to be sorted. Add `data-sort-property` attribute to
+the `<th>` elements of the columns you want to be sortable, and provide the name of the
+property that's bound in the `<td>` element of that column. And, voilà - sorting!
 
-The setup needed to make this work is:
-  - A reference to the table element that's bound to the observable array when
-    the extender is applied.
-  - A "data-sort-property" attribute on the <th> tags for sortable columns, with the
-    path to the property that will be used for sorting. Columns without this property
-    will not be sorted.
+There are three sorting states that are toggled through - none, ascending and descending.
+If the sorting state is set to ascending or descending, the `<th>` element of that column
+will have a `sorting-asc` or `sorting-desc` class respectively, so you can use CSS to adorn
+the header with directional arrows or whatever else you'd like.
 
 Example
 -------
 
 HTML:
 
-    <table id="company-table">
+    <table>
         <thead>
             <tr>
                 <th data-sort-property="company"><span>Company</span></th>
@@ -25,7 +23,7 @@ HTML:
                 <th><span>Leasing provider</span></th>
             </tr>
         </thead>
-        <tbody data-bind="foreach: companies">
+        <tbody data-bind="tablesortForeach: companies">
             <tr>
                 <td data-bind="text: company"></td>
                 <td data-bind="text: signatureColor"></td>
@@ -63,7 +61,16 @@ Knockout model with some data:
                 signatureColor: 'white',
                 leasingProvider: 'Mercedes'
             }
-        ] ).extend( { tablesort: document.getElementById( 'company-table' ) } );
+        ] );
     };
 
     ko.applyBindings( new CompanyModel() );
+    
+Compatibility
+-------
+It's still early, but this has been tested with the following browsers so far
+(all on Windows 8.1 x64):
+- Chrome 31
+- Firefox 24
+- Internet Explorer 8+
+- Opera 19
