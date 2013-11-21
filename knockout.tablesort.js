@@ -19,9 +19,7 @@
         return closestParentOrSelf( element, target );
     };    
 
-
     ko.bindingHandlers.tablesortForeach = {
-
 
         init: function ( tbodyElement, valueAccessor, allBindings, viewModel, bindingContext ) {
 
@@ -47,23 +45,52 @@
 
             // Attach a sorted observable to the observable array.
             valueAccessor.sorted = ko.computed( {
+                
                 read: function () {
-                    if ( !valueAccessor.sorted.options )
-                        return valueAccessor();
+                    
+                    var unsortedArray = valueAccessor();
+                    var sortOptions = valueAccessor.sorted.options();
 
-                    return [];
+                    // If the sort options are null or the array is empty,
+                    // no sorting is performed.
+                    if ( !sortOptions || unsortedArray.length === 0 )
+                        return unsortedArray;
+
+                    // Modifier for the sort direction (ascending/descending).
+                    var direction = sortOptions.direction === 'asc' ? 1 : -1;
+
+                    // Map the property to sort on.
+                    var sortMap = unsortedArray.map( function ( e, i ) {
+                        return { index: i, value: e[ sortOptions.propertyName ] };
+                    } );
+
+                    // Perform the sort on the map.
+                    sortMap.sort( function ( a, b ) {
+                        if ( a.value > b.value )
+                            return 1 * direction;
+                        if ( a.value < b.value )
+                            return -1 * direction;
+                        return 0;
+                    } );
+
+                    // Return the sorted array.
+                    return sortMap.map( function ( e ) {
+                        return unsortedArray[ e.index ];
+                    } );
                 },
+                
                 deferEvaluation: true
             } );
 
             // Initialize the options object for the sort computed.
-            valueAccessor.sorted.options = null;
+            valueAccessor.sorted.options = ko.observable( null );
 
             return ko.bindingHandlers.foreach.init( tbodyElement, valueAccessor.sorted, allBindings, viewModel, bindingContext );
         },
         
 
         update: function ( tbodyElement, valueAccessor, allBindings, viewModel, bindingContext ) {
+            
             ko.bindingHandlers.foreach.update( tbodyElement, valueAccessor.sorted, allBindings, viewModel, bindingContext );
             return { controlDescendantBindings: true };
         },
