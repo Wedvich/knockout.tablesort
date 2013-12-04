@@ -10,8 +10,8 @@ If the sorting state is set to ascending or descending, the `<th>` element of th
 will have a `sorting-asc` or `sorting-desc` class respectively, so you can use CSS to adorn
 the header with directional arrows or whatever else you'd like.
 
-The `beforetablesort` and `aftertablesort` will be triggered on the `<table>` element before
-and after sorting has been performed, respectively.
+The `beforetablesort` and `aftertablesort` events will be triggered on the `<table>` element
+before and after sorting has been performed, respectively.
 
 ### Example
 
@@ -35,9 +35,7 @@ HTML:
     </table>
     
 ### Compatibility
-- Knockout 2.3 or 3.0
-together with
-- Modern browsers, as well as IE 8+
+Works with Knockout 2.3 or 3.0, in all modern browsers as well as IE 8+
 
 ### License
-**License:** MIT (http://www.opensource.org/licenses/mit-license)
+MIT (http://www.opensource.org/licenses/mit-license)
