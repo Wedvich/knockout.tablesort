@@ -1,8 +1,10 @@
-// Knockout.Tablesort
+// Knockout.Tablesort plugin
+// (c) Martin Wedvich
+// License: MIT (http://www.opensource.org/licenses/mit-license)
 
 ( function ( undefined ) {
     
-    // Array.prototype.map polyfill from Mozilla Developer Network
+    // Array.prototype.map polyfill from Mozilla Developer Network.
     // Full version with comments:
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map#Compatibility
     if ( !Array.prototype.map ) {
@@ -28,6 +30,15 @@
                 k++;
             }
             return A;
+        };
+    }
+    
+    // Array.prototype.map polyfill from Mozilla Developer Network.
+    // Full version with comments:
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim#Compatibility
+    if ( !String.prototype.trim ) {
+        String.prototype.trim = function () {
+            return this.replace( /^\s+|\s+$/gm, '' );
         };
     }
     
@@ -62,12 +73,15 @@
             trElement.children[i].className = trElement.children[i].className.replace( /sorting-(asc|desc)/g, '' );
         }
 
-        // Get the options object and set it to one of three states,
+        var currentSortOptions = sortOptions();
+        var tableElement = closestParentOrSelf( trElement, 'table' );
+        ko.utils.triggerEvent( tableElement, 'beforetablesort' );
+        
+        // Set the options object to one of three states,
         // depending on the previous sort column/direction:
         // - null, or different column: set it to ascending on the current column
         // - ascending: set it to descending
         // - descending: set it to null
-        var currentSortOptions = sortOptions();
         if ( !currentSortOptions || currentSortOptions.columnIndex !== thElement.cellIndex ) {
             sortOptions( {
                 direction: 'asc',
@@ -87,8 +101,10 @@
         if ( !!newSortOptions ) {
             var classes = thElement.className.split( ' ' );
             classes.push( 'sorting-' + newSortOptions.direction );
-            thElement.className = ko.utils.stringTrim( classes.join( ' ' ) );
+            thElement.className = classes.join( ' ' ).trim();
         }
+        
+        ko.utils.triggerEvent( tableElement, 'aftertablesort' );
     }
 
     ko.bindingHandlers.tablesortForeach = {
@@ -181,6 +197,8 @@
         update: function ( tbodyElement, valueAccessor, allBindings, viewModel, bindingContext ) {
             
             ko.bindingHandlers.foreach.update( tbodyElement, valueAccessor.sorted, allBindings, viewModel, bindingContext );
+            var tableElement = closestParentOrSelf( tbodyElement, 'table' );
+            ko.utils.triggerEvent( tableElement, 'aftertablesort' );
             return { controlDescendantBindings: true };
         },
     };

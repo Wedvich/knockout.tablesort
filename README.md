@@ -1,4 +1,4 @@
-##Knockout.Tablesort
+## Knockout.Tablesort
 
 This is a custom [Knockout.js](http://knockoutjs.com/ "Knockout") foreach binding handler
 that allows tables using this handler to be sorted. Add `data-sort-property` attribute to
@@ -10,8 +10,10 @@ If the sorting state is set to ascending or descending, the `<th>` element of th
 will have a `sorting-asc` or `sorting-desc` class respectively, so you can use CSS to adorn
 the header with directional arrows or whatever else you'd like.
 
-Example
--------
+The `beforetablesort` and `aftertablesort` will be triggered on the `<table>` element before
+and after sorting has been performed, respectively.
+
+### Example
 
 HTML:
 
@@ -31,46 +33,11 @@ HTML:
             </tr>
         </tbody>
     </table>
-
-Knockout model with some data:
-
-    var CompanyModel = function () {
-        this.companies = ko.observableArray( [
-            {
-                company: 'Megacorp',
-                signatureColor: 'red',
-                leasingProvider: 'Bentley'
-            },
-            {
-                company: 'Acme Corporation',
-                signatureColor: 'yellow',
-                leasingProvider: 'Volvo'
-            },
-            {
-                company: 'Initech',
-                signatureColor: 'blue',
-                leasingProvider: 'BMW'
-            },
-            {
-                company: 'Beta Industries',
-                signatureColor: 'green',
-                leasingProvider: 'Toyota'
-            },
-            {
-                company: 'Gravy Software Inc.',
-                signatureColor: 'white',
-                leasingProvider: 'Mercedes'
-            }
-        ] );
-    };
-
-    ko.applyBindings( new CompanyModel() );
     
-Compatibility
--------
-It's still early, but this has been tested with the following browsers so far
-(all on Windows 8.1 x64):
-- Chrome 31
-- Firefox 24
-- Internet Explorer 8+
-- Opera 19
+### Compatibility
+- Knockout 2.3 or 3.0
+together with
+- Modern browsers, as well as IE 8+
+
+### License
+**License:** MIT (http://www.opensource.org/licenses/mit-license)
