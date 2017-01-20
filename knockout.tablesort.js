@@ -160,11 +160,16 @@
 
                     // Perform the sort on the map.
                     sortMap.sort( function ( a, b ) {
-                        if ( a.value > b.value )
+                        var av = typeof a.value === "function" ? a.value() : a.value;
+                        var bv = typeof a.value === "function" ? b.value() : b.value;
+
+                        if ( av > bv )
                             return 1 * direction;
-                        if ( a.value < b.value )
+                        if ( av < bv )
                             return -1 * direction;
                         return 0;
+                        // Suggestion, stop removing sort.
+                        //return av > (bv ? 1 : -1) * direction;
                     } );
 
                     // Return the sorted array.
@@ -200,7 +205,7 @@
             var tableElement = closestParentOrSelf( tbodyElement, 'table' );
             ko.utils.triggerEvent( tableElement, 'aftertablesort' );
             return { controlDescendantBindings: true };
-        },
+        }
     };
 
 } )();
