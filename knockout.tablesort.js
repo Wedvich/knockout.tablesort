@@ -42,39 +42,37 @@
         };
     }
     
-    // Helper function to recursively find the closest parent
-    // element that matches the target node name, including the
-    // element itself.
-    function closestParentOrSelf( element, target ) {
-        if ( element.nodeName.toLowerCase() === target.toLowerCase() )
-            return element;
-
-        element = element.parentElement;
-        if ( element === undefined || !element )
-            return null;
-
-        if ( element.nodeName.toLowerCase() === target.toLowerCase() )
-            return element;
-
-        return closestParentOrSelf( element, target );
-    };
+    // Element.prototype.closest polifill for browsers that don't support closest.
+    // https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
+    if (window.Element && !window.Element.prototype.closest) {
+        window.Element.prototype.closest = function(s) {
+            var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+                i,
+                el = this;
+            do {
+                i = matches.length;
+                while (--i >= 0 && matches.item(i) !== el) {};
+            } while ((i < 0) && (el = el.parentElement));
+            return el;
+        };
+    }
     
     // Header click handler function.
     function clickHandler( targetElement, sortOptions ) {
 
         // Get the header element and check if it should be sortable.
-        var thElement = closestParentOrSelf( targetElement, 'th' );
+        var thElement = targetElement.closest( 'th' );
         if ( !thElement.getAttribute( 'data-sort-property' ) )
             return;
 
         // Remove sorting classes.
-        var trElement = closestParentOrSelf( thElement, 'tr' );
+        var trElement = thElement.closest( 'tr' );
         for ( var i = 0; i < trElement.children.length; ++i ) {
             trElement.children[i].className = trElement.children[i].className.replace( /sorting-(asc|desc)/g, '' );
         }
 
         var currentSortOptions = sortOptions();
-        var tableElement = closestParentOrSelf( trElement, 'table' );
+        var tableElement = trElement.closest('table' );
         ko.utils.triggerEvent( tableElement, 'beforetablesort' );
         
         // Set the options object to one of three states,
@@ -114,7 +112,7 @@
                 throw new TypeError( 'The Knockout.Tablesort binding can only be used on <tbody> elements.' );
 
             // ... Make sure the tbody element has a parent table element...
-            var tableElement = closestParentOrSelf( tbodyElement, 'table' );
+            var tableElement = tbodyElement.closest( 'table' );
             if ( !tableElement )
                 throw new Error( 'Malformed table markup: no parent <table> element found for this <tbody> element.' );
 
@@ -194,7 +192,7 @@
         update: function ( tbodyElement, valueAccessor, allBindings, viewModel, bindingContext ) {
             
             ko.bindingHandlers.foreach.update( tbodyElement, valueAccessor.sorted, allBindings, viewModel, bindingContext );
-            var tableElement = closestParentOrSelf( tbodyElement, 'table' );
+            var tableElement = tbodyElement.closest( 'table' );
             ko.utils.triggerEvent( tableElement, 'aftertablesort' );
             return { controlDescendantBindings: true };
         }
