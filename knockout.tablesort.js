@@ -33,7 +33,7 @@
         };
     }
     
-    // Array.prototype.map polyfill from Mozilla Developer Network.
+    // String.prototype.trim polyfill from Mozilla Developer Network.
     // Full version with comments:
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim#Compatibility
     if ( !String.prototype.trim ) {
@@ -88,11 +88,9 @@
                 columnIndex: thElement.cellIndex,
                 propertyName: thElement.getAttribute( 'data-sort-property' )
             } );
-        } else if ( currentSortOptions.direction === 'asc' ) {
-            currentSortOptions.direction = 'desc';
-            sortOptions.valueHasMutated();
         } else {
-            sortOptions( null );
+            currentSortOptions.direction = currentSortOptions.direction === 'asc' ? 'desc' : 'asc';
+            sortOptions.valueHasMutated();
         }
 
         // Get the updated options and add CSS class to the related
@@ -163,13 +161,7 @@
                         var av = typeof a.value === "function" ? a.value() : a.value;
                         var bv = typeof a.value === "function" ? b.value() : b.value;
 
-                        if ( av > bv )
-                            return 1 * direction;
-                        if ( av < bv )
-                            return -1 * direction;
-                        return 0;
-                        // Suggestion, stop removing sort.
-                        //return av > (bv ? 1 : -1) * direction;
+                        return (av > bv ? 1 : -1) * direction;
                     } );
 
                     // Return the sorted array.
